@@ -1,0 +1,28 @@
+{
+    "average" : 15,
+    "footprint": 14,
+    "past_votes": [
+        {
+                "id": "abcde",
+                "name": "Not Japanese Sushi",
+                "when": 1655492043,
+                "footprint": 1.7,
+                "cater": "abcedf"
+        },
+        {
+                "id": "f0123",
+                "name": "Incredibly Greesy",
+                "when": 1655491043,
+                "footprint": 4.0,
+                "cater": "012345"
+        },
+        {
+                "id": "45678",
+                "name": "Not Japanese Sushi",
+                "when": 1655490043,
+                "footprint": 2.3,
+                "cater": "012345"
+        }
+    ]
+
+}

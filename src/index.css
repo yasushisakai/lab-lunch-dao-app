@@ -1,3 +1,32 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    html {
+        background-color: theme(colors.base);
+        color: theme(colors.light-text);
+    }
+
+    h1 {
+        @apply text-3xl py-3 font-bold;
+    }
+
+    nav {
+        background-color: theme(colors.navigation-bg);
+        @apply p-2;
+    }
+}
+
+@layer components {
+    #content {
+        @apply px-2;
+        background-color: theme(colors.base);
+    }
+
+    .card {
+        background-color: theme(colors.light-text);
+        color: theme(colors.base);
+        @apply rounded-lg p-2 text-sm;
+    }
+}

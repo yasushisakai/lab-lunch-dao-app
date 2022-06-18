@@ -1,0 +1,9 @@
+{
+    "cater_list": {
+        "abcde": {"name": "Not Indian Curry", "last_used":1655492023},
+        "12345": {"name": "Afri-Mexican", "last_used":1655492033},
+        "7890a": {"name": "Far East Italian", "last_used":1655492043}
+    },
+    "vote_due": 1655492043,
+    "current_num_voted": 3 
+}

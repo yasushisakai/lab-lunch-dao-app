@@ -1,0 +1,25 @@
+{
+    "name": "Far East Italian",
+    "menu": {
+        "abcde":{
+            "name": "Sushi Rissotto",
+            "cost": 15,
+            "foot_print": 1.7
+        },
+        "f0123":{
+            "name": "Kun Pao Pizza",
+            "cost": 7,
+            "foot_print": 2.0
+        },
+        "45678":{
+            "name": "Spicy Pasta",
+            "cost": 7,
+            "foot_print": 2.0
+        },
+        "90abc":{
+            "name": "Nashi go panini",
+            "cost": 14,
+            "foot_print": 0.4
+        }
+    }   
+}

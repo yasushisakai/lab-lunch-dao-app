@@ -7,12 +7,13 @@ import {
 import { clusterApiUrl } from '@solana/web3.js';
 import React, { FC, ReactNode, useMemo } from 'react';
 import { Router, Link, RouteComponentProps } from "@reach/router";
+import List from './views/List';
+import Home from './views/Home';
 
-require('./App.css');
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHouse } from '@fortawesome/free-solid-svg-icons';
+
 require('@solana/wallet-adapter-react-ui/styles.css');
-
-const Home = (props: RouteComponentProps) => <div>home<nav><Link to="dash">dashboard</Link></nav></div>;
-const Dash = (props: RouteComponentProps) => <div>dash</div>;
 
 const App: FC = () => {
     return (
@@ -52,14 +53,20 @@ const Context: FC<{ children: ReactNode }> = ({ children }) => {
 
 const Content: FC = () => {
     return (
-        <div className="App">
-            <WalletMultiButton />
-			<div className="font-bold text-3xl">
-			<Router>
-			 <Home path="/" />
-			 <Dash path="dash" />
-			</Router>
-			</div>
+        <div>
+        <nav>
+            <FontAwesomeIcon icon={faHouse} />
+        </nav>
+        <div id="content">
+            <div className="flex flex-col">
+                    <Router>
+                        <Home path="/" />
+                        <List path="list" />
+                    </Router>
+                <div className="flex flex-row">
+                </div>
+           </div>
+        </div>
         </div>
     );
 };
