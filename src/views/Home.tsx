@@ -1,7 +1,6 @@
-import { RouteComponentProps } from "@reach/router";
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
-const Home = (props: RouteComponentProps) => {
+const Home = () => {
     return (<>
         <h1>Home</h1>
         <WalletMultiButton />

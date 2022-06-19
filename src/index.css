@@ -9,12 +9,21 @@
     }
 
     h1 {
-        @apply text-3xl py-3 font-bold;
+        @apply text-4xl py-6 font-bold;
     }
 
     nav {
         background-color: theme(colors.navigation-bg);
         @apply p-2;
+    }
+
+    input, select {
+        background-color: theme(colors.base);
+        color: theme(colors.light-text);
+        border-style: solid;
+        border-width: 4px;
+        border-color: theme(colors.light-text);
+        @apply rounded-lg py-4 text-center text-2xl font-bold;
     }
 }
 
@@ -27,6 +36,10 @@
     .card {
         background-color: theme(colors.light-text);
         color: theme(colors.base);
-        @apply rounded-lg p-2 text-sm;
+        @apply rounded-lg py-2 px-3.5;
+    }
+
+    .navi-item {
+        @apply flex flex-col text-xs;
     }
 }

@@ -1,17 +1,23 @@
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
-import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { ConnectionProvider, useWallet, WalletProvider } from '@solana/wallet-adapter-react';
+import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import {
     PhantomWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 import React, { FC, ReactNode, useMemo } from 'react';
-import { Router, Link, RouteComponentProps } from "@reach/router";
-import List from './views/List';
-import Home from './views/Home';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Navigation from './components/Navigation';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouse } from '@fortawesome/free-solid-svg-icons';
+import Home from './views/Home';
+import List from './views/List';
+import Propose from './views/Propose';
+import Status from './views/Status';
+import Topic from './views/Topic';
+import ProposeLunch from './views/ProposeLunch';
+import ProposeCater from './views/ProposeCater';
+import Cater from './views/Cater';
+import { WalletType, WalletContext } from './workspace';
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -52,21 +58,29 @@ const Context: FC<{ children: ReactNode }> = ({ children }) => {
 };
 
 const Content: FC = () => {
+
+    const { publicKey } = useWallet();
+    const context = {address: publicKey} as WalletType;
+
     return (
-        <div>
-        <nav>
-            <FontAwesomeIcon icon={faHouse} />
-        </nav>
-        <div id="content">
-            <div className="flex flex-col">
-                    <Router>
-                        <Home path="/" />
-                        <List path="list" />
-                    </Router>
-                <div className="flex flex-row">
-                </div>
-           </div>
+        <BrowserRouter>
+        <WalletContext.Provider value={context}>
+        <div className="h-screen">
+            <Navigation />
+            <div id="content">
+                    <Routes>
+                        <Route element={<Home />} path="/" />
+                        <Route element={<List />} path="list" />
+                        <Route element={<Propose />} path="propose" />
+                        <Route element={<ProposeLunch />} path="propose/lunch" />
+                        <Route element={<ProposeCater />} path="propose/cater" />
+                        <Route element={<Topic />} path="topic/:topicId"/>
+                        <Route element={<Cater />} path="cater/:caterId"/>
+                        <Route element={<Status />} path="status" />
+                    </Routes>
+            </div>
         </div>
-        </div>
+        </WalletContext.Provider>
+        </BrowserRouter>
     );
 };

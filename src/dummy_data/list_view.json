@@ -1,13 +1,24 @@
 {
-    "abcde" : {
-        "voted": ["key-a", "key-b", "key-c"],
-        "topic": 0, 
-        "which_lunch": 1655492043,
-        "due": 1655492043
-    },
-    "f01234": {
-        "voted": ["key-b", "key-c"],
-        "topic": 1,
-        "due": 1655492043
-    }
+    "topics": [
+        {
+            "id": "abcde",
+            "voted": [
+                "key-a",
+                "key-b",
+                "key-c"
+            ],
+            "topic": 0,
+            "which_lunch": 1655492043,
+            "due": 1655492043
+        },
+        {
+            "id": "f01234",
+            "voted": [
+                "key-b",
+                "key-c"
+            ],
+            "topic": 1,
+            "due": 1655492043
+        }
+    ]
 }
