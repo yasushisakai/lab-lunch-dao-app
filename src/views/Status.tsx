@@ -1,4 +1,4 @@
-import { shortenAddress } from "../utilities";
+import { shortenAddress } from "../util";
 import { useContext, useEffect, useState } from "react";
 import { WalletContext } from "../workspace";
 import { Link } from "react-router-dom";

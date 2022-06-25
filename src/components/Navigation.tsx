@@ -3,7 +3,7 @@ import { faHouse, faListCheck, faFileCirclePlus, faPersonCirclePlus, faPersonCir
 import { Link } from 'react-router-dom';
 import { WalletContext } from '../workspace';
 import { useContext, useEffect } from 'react';
-import { shortenAddress } from '../utilities';
+import { shortenAddress } from '../util';
 
 const Navigation = () => {
 

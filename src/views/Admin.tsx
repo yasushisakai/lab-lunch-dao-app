@@ -2,9 +2,9 @@ import { PublicKey } from "@solana/web3.js";
 import { ChangeEvent, useContext, useEffect, useState } from "react";
 import { CaterAccount } from "../model";
 import { batchAddCater, findAddress, stringToBytes } from "../util";
-import { shortenAddress } from "../utilities";
+import { shortenAddress } from "../util";
 import { WalletContext } from "../workspace";
-import caterInfo from "../dummy_data/caters.json";
+import caterInfo from "../data/caters.json";
 import config from "../config";
 
 const Admin = () => {

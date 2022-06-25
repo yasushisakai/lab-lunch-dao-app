@@ -2,6 +2,7 @@ import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 import { LabLunchDao } from "./types/lab_lunch_dao";
 import { CaterInfo } from "./model";
+import { PublicKey } from "@solana/web3.js";
 
 export const newKeyPair = anchor.web3.Keypair.generate;
 
@@ -103,4 +104,9 @@ export const vote = async (
             voter: voter.publicKey
         }).signers([voter]).rpc()
     return ballotAddress
+}
+
+
+export const shortenAddress = (key: PublicKey):string =>{
+    return key.toBase58().substring(0,5);
 }

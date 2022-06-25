@@ -38,7 +38,7 @@
         "typescript": "^4.7.3"
     },
     "scripts": {
-        "start": "react-app-rewired start",
+        "start": "REACT_APP_SOLANA_RPC_NODE_URL=http://127.0.0.1:8899 react-app-rewired start",
         "build": "react-app-rewired build",
         "copy": "./copy.sh",
         "test": "react-app-rewired test",

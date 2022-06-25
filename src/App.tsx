@@ -73,6 +73,7 @@ const Content: FC = () => {
             // const wallet = useAnchorWallet();
             const commitment = 'processed';
             const connection = new Connection(config.endpoint, commitment);
+            console.log(`using endpoint: ${config.endpoint}`);
 
             const wallet = {
                 publicKey,
