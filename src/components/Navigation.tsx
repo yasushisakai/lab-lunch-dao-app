@@ -2,12 +2,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse, faListCheck, faFileCirclePlus, faPersonCirclePlus, faPersonCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { WalletContext } from '../workspace';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { shortenAddress } from '../utilities';
 
 const Navigation = () => {
 
     const { address } = useContext(WalletContext);
+
+    useEffect(()=>{
+        if(!address){
+            return
+        }
+    },[address]);
 
     const walletIcon = () => {
         let iconType = faPersonCircleXmark;

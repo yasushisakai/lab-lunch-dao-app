@@ -10,7 +10,8 @@ module.exports = {
       'base': '#27AE60',
       'navigation-bg': '#2D9CDB',
       'light-text': '#F2F2F2',
-      'negative': '#EB5757'
+      'negative': '#EB5757',
+      'fixed': '#828282'
     },
     extend: {},
   },

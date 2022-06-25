@@ -8,7 +8,7 @@ type IPollFooterProps = {
 
 const PollFooter: FC<IPollFooterProps> = ({due, quora, current_votes}) => {
     //TODO: Date.now() can be unreliable
-    const timeLeftInHours = ((due - Date.now().valueOf() / 1000) / 3600).toFixed();
+    const timeLeftInHours = ((due*1000 - (new Date()).valueOf()) / (3600*1000)).toFixed()
 
     return (
         <div className="w-full flex flex-col bg-base p-2 font-bold">

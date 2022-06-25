@@ -1,55 +1,88 @@
-import { FC } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck, faCircleXmark, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
+import { Topic } from '../model';
+import { WalletContext } from "../workspace";
+import { findAddress, stringToBytes } from "../util";
 
-
-type Item = {
-    id: string,
-    topic: number,
-    which_lunch?: number,
-    due: number,
-    voted: string[]
-}
 
 type ITopicListItemProps = {
-    element: Item,
+    topic: Topic,
     walletAddress: string, // users public key
 }
 
-const TopicListItem: FC<ITopicListItemProps> = ({ element, walletAddress }) => {
-    const { id, topic, which_lunch, due, voted } = element;
+const TopicListItem: FC<ITopicListItemProps> = ({ topic, walletAddress }) => {
 
-    const didVote = voted.includes(walletAddress) ?
-        <FontAwesomeIcon icon={faCircleCheck} size="2x" /> :
-        <span className="text-negative">
-            <FontAwesomeIcon icon={faCircleXmark} size="2x" />
-        </span>;
+    const { publicKey, voteDue, name, description, finalized } = topic;
+    const [voted, setVoted] = useState(true);
+    const { address, program } = useContext(WalletContext);
 
-    let what = 'update';
-    let text = 'cater list';
-    if (topic === 0) {
-        what = 'vote lunch menu for';
-        const date = new Date(which_lunch!);
-        text = date.toDateString();
+    useEffect(() => {
+        fetchIfVoted();
+    })
+
+    const fetchIfVoted = async () => {
+        if (program && address) {
+            const ballot = await ballotAddress();
+            try {
+                const ballotAccount = await program.account.ballot.fetch(ballot!);
+                setVoted(true);
+            } catch {
+                setVoted(false);
+            }
+        }
+    }
+
+    const ballotAddress = async () => {
+        if (address && program) {
+            const [ballot, _] = await findAddress([stringToBytes("ballot"), address.toBuffer(), topic.publicKey.toBuffer()], program);
+            return ballot
+        }
+    }
+
+    const due = voteDue.toNumber()*1000 < (new Date()).valueOf();
+
+    const status = () => {
+        if (finalized) {
+            return (<div className="flex flex-col justify-between space-y-1 text-fixed">
+                <FontAwesomeIcon icon={faCircleXmark} size="2x" />
+                <div className="text-xs text-center">fixed</div>
+                </div>);
+        } else if (due) {
+            return (<div className="flex flex-col justify-center space-y-1 text-negative">
+                <FontAwesomeIcon icon={faCircleXmark} size="2x" />
+                <span className="text-xs text-center">closed</span>
+            </div>);
+        } else if (voted) {
+            return (<div className="flex flex-col justify-center space-y-1">
+                <FontAwesomeIcon icon={faCircleCheck} size="2x" />
+                <span className="text-xs text-center">voted</span>
+            </div>);
+        } else {
+            return (<div className="flex flex-col justify-center space-y-1">
+                <FontAwesomeIcon icon={faCircle} size="2x" />
+                <span className="text-xs text-center">open</span>
+            </div>);
+        }
     }
 
     //TODO: Date.now() can be unreliable
-    const timeLeftInHours = ((due - Date.now().valueOf() / 1000) / 3600).toFixed();
+    const timeLeftInHours = ((voteDue.toNumber()*1000 - Date.now().valueOf()) / 3600000).toFixed();
 
-    const endpoint = `/topic/${id}`;
+    const endpoint = `/topic/${publicKey}`;
 
     return (
         <Link to={endpoint}>
             <div className="card">
-                <div className="flex flex-row space-x-2">
-                    <div className="flex flex-col justify-center">{didVote}</div>
+                <div className="flex flex-row space-x-3">
+                    <div className="flex flex-col justify-center">{status()}</div>
                     <div className="flex-1 flex flex-col">
-                        <p className="text-sm">{what}</p>
-                        <p className="font-bold">{text}</p>
+                        <p className="text-sm">{description}</p>
+                        <p className="font-bold">{name}</p>
                     </div>
                     <div className="flex flex-col text-sm justify-center">
-                        <p className="font-bold">{timeLeftInHours}</p>
+                        <p className="font-bold text-center">{timeLeftInHours}</p>
                         <p>hours</p>
                     </div>
                 </div>

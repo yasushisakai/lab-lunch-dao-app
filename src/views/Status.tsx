@@ -3,6 +3,8 @@ import { shortenAddress } from "../utilities";
 import PastVoteItem from "../components/PastVoteItem";
 import { useContext } from "react";
 import { WalletContext } from "../workspace";
+import { Link } from "react-router-dom";
+import config from "../config";
 
 const Status = () => {
 
@@ -12,22 +14,22 @@ const Status = () => {
     if (meanDifference < 0) {
         description = `you are ${meanDifference}kgCo2e lower than average.`
     }
-    const past_votes = data.past_votes.map(v => (<div key={v.id}>
-        <PastVoteItem pastVote={v}/>
-    </div>));
+
+    const adminLink = () => {
+        if (address?.toBase58() === config.admin) {
+            return (<Link to="../admin">admin</Link>)
+        }
+    }
 
     if (address !== null) {
         return (<>
             <h1>'{shortenAddress(address)}'</h1>
             <div className="flex flex-col space-y-5">
                 <div className="text-center text-3xl font-bold">{meanDifference} kgCo2e</div>
+                <div>{adminLink()}</div>
                 <p>{description}</p>
                 <div className="flex flex-row justify-end">
                     <div className="card flex-none font-bold px-5 flex flex-col justify-center">submit</div>
-                </div>
-                <div>
-                    <div className="flex flex-row justify-between text-xs mb-2"><span>menu</span> <span>kgCo2e</span></div>
-                    <div className="flex flex-col space-y-3">{past_votes}</div>
                 </div>
             </div>
         </>)

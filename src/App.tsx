@@ -1,15 +1,16 @@
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import { ConnectionProvider, useWallet, WalletProvider } from '@solana/wallet-adapter-react';
+import { ConnectionProvider, useWallet, WalletProvider, useAnchorWallet } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import {
     PhantomWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl } from '@solana/web3.js';
-import React, { FC, ReactNode, useMemo } from 'react';
+import { clusterApiUrl, Connection, PublicKey } from '@solana/web3.js';
+import React, { FC, ReactNode, useEffect, useState, useMemo } from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navigation from './components/Navigation';
 
 import Home from './views/Home';
+import Admin from './views/Admin';
 import List from './views/List';
 import Propose from './views/Propose';
 import Status from './views/Status';
@@ -17,7 +18,11 @@ import Topic from './views/Topic';
 import ProposeLunch from './views/ProposeLunch';
 import ProposeCater from './views/ProposeCater';
 import Cater from './views/Cater';
-import { WalletType, WalletContext } from './workspace';
+import { WalletType, WalletContext, emptyContext } from './workspace';
+import { AnchorProvider, Program, Wallet } from '@project-serum/anchor';
+import config from './config';
+import { LabLunchDao, IDL } from './types/lab_lunch_dao';
+import { stringToBytes, findAddress } from './util';
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -35,7 +40,8 @@ const Context: FC<{ children: ReactNode }> = ({ children }) => {
     const network = WalletAdapterNetwork.Devnet;
 
     // You can also provide a custom RPC endpoint.
-    const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+    // const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+    // const endpoint = 'https://129.0.0.1:8899';
 
     // @solana/wallet-adapter-wallets includes all the adapters but supports tree shaking and lazy loading --
     // Only the wallets you configure here will be compiled into your application, and only the dependencies
@@ -49,7 +55,7 @@ const Context: FC<{ children: ReactNode }> = ({ children }) => {
     );
 
     return (
-        <ConnectionProvider endpoint={endpoint}>
+        <ConnectionProvider endpoint={config.endpoint}>
             <WalletProvider wallets={wallets} autoConnect>
                 <WalletModalProvider>{children}</WalletModalProvider>
             </WalletProvider>
@@ -59,28 +65,60 @@ const Context: FC<{ children: ReactNode }> = ({ children }) => {
 
 const Content: FC = () => {
 
-    const { publicKey } = useWallet();
-    const context = {address: publicKey} as WalletType;
+    const [context, setContext] = useState(emptyContext);
+    const { publicKey, signTransaction, signAllTransactions } = useWallet();
+
+    useEffect(() => {
+        if(publicKey){
+        // const wallet = useAnchorWallet();
+        const commitment = 'processed';
+        const connection = new Connection(config.endpoint, commitment);
+
+        const wallet = {
+            publicKey,
+            signTransaction,
+            signAllTransactions
+        };
+
+        const provider = new AnchorProvider(
+            connection,
+            wallet as Wallet,
+            { preflightCommitment: 'processed', commitment }
+        );
+
+        const programId = new PublicKey(config.programId);
+        const program = new Program(IDL, programId, provider) as Program<LabLunchDao>
+
+        findAddresses(program, publicKey)
+        }
+    }, [publicKey]);
+
+    const findAddresses = async(program: Program<LabLunchDao>, publicKey: PublicKey)=>{
+        const [group, _gBump] = await findAddress([stringToBytes("group"), stringToBytes(config.groupName)], program);
+        const [list, _lBump] = await findAddress([stringToBytes("cater_list"), group.toBuffer()], program);
+        setContext({address: publicKey, program, group, list} as WalletType)
+    }
 
     return (
         <BrowserRouter>
-        <WalletContext.Provider value={context}>
-        <div className="h-screen">
-            <Navigation />
-            <div id="content">
-                    <Routes>
-                        <Route element={<Home />} path="/" />
-                        <Route element={<List />} path="list" />
-                        <Route element={<Propose />} path="propose" />
-                        <Route element={<ProposeLunch />} path="propose/lunch" />
-                        <Route element={<ProposeCater />} path="propose/cater" />
-                        <Route element={<Topic />} path="topic/:topicId"/>
-                        <Route element={<Cater />} path="cater/:caterId"/>
-                        <Route element={<Status />} path="status" />
-                    </Routes>
-            </div>
-        </div>
-        </WalletContext.Provider>
+            <WalletContext.Provider value={context}>
+                <div className="h-screen">
+                    <Navigation />
+                    <div id="content">
+                        <Routes>
+                            <Route element={<Home />} path="/" />
+                            <Route element={<Admin />} path="/admin" />
+                            <Route element={<List />} path="list" />
+                            <Route element={<Propose />} path="propose" />
+                            <Route element={<ProposeLunch />} path="propose/lunch" />
+                            <Route element={<ProposeCater />} path="propose/cater" />
+                            <Route element={<Topic />} path="topic/:topicId" />
+                            <Route element={<Cater />} path="cater/:caterId" />
+                            <Route element={<Status />} path="status" />
+                        </Routes>
+                    </div>
+                </div>
+            </WalletContext.Provider>
         </BrowserRouter>
     );
 };

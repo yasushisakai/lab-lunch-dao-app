@@ -1,9 +1,9 @@
 import { FC } from "react";
-import { IMenu } from "./LunchPoll";
+import { MenuItem } from "../model";
 
 
 type ICaterMenuItem = {
-    menu: IMenu
+    menu: MenuItem
 }
 
 const CaterMenuItem: FC<ICaterMenuItem> = ({ menu }) => {
@@ -11,7 +11,7 @@ const CaterMenuItem: FC<ICaterMenuItem> = ({ menu }) => {
             <div className="flex-1 font-bold flex flex-col justify-center">{menu.name}</div>
             <div className="font-bold flex flex-col justify-center">${menu.cost}</div>
         <div className="flex flex-col text-center">
-            <div className="font-bold">{menu.foot_print}</div>
+            <div className="font-bold">{menu.footPrint.toFixed(2)}</div>
             <div className="text-xs">kgCo2E</div>
         </div>
     </div>)
