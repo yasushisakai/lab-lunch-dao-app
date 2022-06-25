@@ -12,24 +12,24 @@ const Cater = () => {
     const [menus, setMenus] = useState<MenuItem[]>([]);
 
     useEffect(() => {
-        fetchData();
-    }, []);
-
-    const fetchData = async () => {
-        if (program && caterId) {
-            // cater
-            const c = await program.account.caterItem.fetch(new PublicKey(caterId));
-            // the menus
-            const ms = await program.account.menuItem.all([{
-                memcmp: {
-                    offset: 8,
-                    bytes: caterId
-                }
-            }]);
-            setMenus(ms.map(m => m.account));
-            setCater(c);
+        const fetchData = async () => {
+            if (program && caterId) {
+                // cater
+                const c = await program.account.caterItem.fetch(new PublicKey(caterId));
+                // the menus
+                const ms = await program.account.menuItem.all([{
+                    memcmp: {
+                        offset: 8,
+                        bytes: caterId
+                    }
+                }]);
+                setMenus(ms.map(m => m.account));
+                setCater(c);
+            }
         }
-    }
+
+        fetchData();
+    }, [caterId, program]);
 
 
     const menu = () => menus.map(m => <CaterMenuItem key={m.name} menu={m} />);

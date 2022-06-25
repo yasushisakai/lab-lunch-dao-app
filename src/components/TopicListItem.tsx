@@ -9,10 +9,9 @@ import { findAddress, stringToBytes } from "../util";
 
 type ITopicListItemProps = {
     topic: Topic,
-    walletAddress: string, // users public key
 }
 
-const TopicListItem: FC<ITopicListItemProps> = ({ topic, walletAddress }) => {
+const TopicListItem: FC<ITopicListItemProps> = ({ topic }) => {
 
     const { publicKey, voteDue, name, description, finalized } = topic;
     const [voted, setVoted] = useState(true);
@@ -24,9 +23,9 @@ const TopicListItem: FC<ITopicListItemProps> = ({ topic, walletAddress }) => {
 
     const fetchIfVoted = async () => {
         if (program && address) {
-            const ballot = await ballotAddress();
+            const [ballot] = await findAddress([stringToBytes("ballot"), address.toBuffer(), topic.publicKey.toBuffer()], program);
             try {
-                const ballotAccount = await program.account.ballot.fetch(ballot!);
+                await program.account.ballot.fetch(ballot);
                 setVoted(true);
             } catch {
                 setVoted(false);
@@ -34,21 +33,14 @@ const TopicListItem: FC<ITopicListItemProps> = ({ topic, walletAddress }) => {
         }
     }
 
-    const ballotAddress = async () => {
-        if (address && program) {
-            const [ballot, _] = await findAddress([stringToBytes("ballot"), address.toBuffer(), topic.publicKey.toBuffer()], program);
-            return ballot
-        }
-    }
-
-    const due = voteDue.toNumber()*1000 < (new Date()).valueOf();
+    const due = voteDue.toNumber() * 1000 < (new Date()).valueOf();
 
     const status = () => {
         if (finalized) {
             return (<div className="flex flex-col justify-between space-y-1 text-fixed">
                 <FontAwesomeIcon icon={faCircleXmark} size="2x" />
                 <div className="text-xs text-center">fixed</div>
-                </div>);
+            </div>);
         } else if (due) {
             return (<div className="flex flex-col justify-center space-y-1 text-negative">
                 <FontAwesomeIcon icon={faCircleXmark} size="2x" />
@@ -68,7 +60,7 @@ const TopicListItem: FC<ITopicListItemProps> = ({ topic, walletAddress }) => {
     }
 
     //TODO: Date.now() can be unreliable
-    const timeLeftInHours = ((voteDue.toNumber()*1000 - Date.now().valueOf()) / 3600000).toFixed();
+    const timeLeftInHours = ((voteDue.toNumber() * 1000 - Date.now().valueOf()) / 3600000).toFixed();
 
     const endpoint = `/topic/${publicKey}`;
 

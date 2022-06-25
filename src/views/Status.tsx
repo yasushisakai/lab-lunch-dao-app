@@ -1,19 +1,37 @@
-import data from "../dummy_data/stats.json";
 import { shortenAddress } from "../utilities";
-import PastVoteItem from "../components/PastVoteItem";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { WalletContext } from "../workspace";
 import { Link } from "react-router-dom";
 import config from "../config";
+import { PublicKey } from "@solana/web3.js";
 
 const Status = () => {
 
-    const { address } = useContext(WalletContext);
-    const meanDifference = data.footprint - data.average;
-    let description = `you are ${meanDifference}kgCo2e higher then average.`
-    if (meanDifference < 0) {
-        description = `you are ${meanDifference}kgCo2e lower than average.`
+    const { address, program } = useContext(WalletContext);
+    const [topics, setTopics] = useState<PublicKey[]>([]);
+
+    useEffect(()=>{
+        const fetchBallots = async () => {
+            if(program && address) {
+                const ballotData = await program.account.ballot.all([{
+                    memcmp:{
+                        offset: 40,
+                        bytes: address.toBase58()
+                    }
+                }]);
+                setTopics(ballotData.map(b=>b.account.topic));
+            }
+        };
+        fetchBallots();
+    },[program, address]);
+
+    const renderTopicLinks = () => {
+        return topics.map(t=>{
+            const url = `../topic/${t.toBase58()}`
+            return(<Link to={url}>topic</Link>)
+        });
     }
+
 
     const adminLink = () => {
         if (address?.toBase58() === config.admin) {
@@ -25,13 +43,10 @@ const Status = () => {
         return (<>
             <h1>'{shortenAddress(address)}'</h1>
             <div className="flex flex-col space-y-5">
-                <div className="text-center text-3xl font-bold">{meanDifference} kgCo2e</div>
                 <div>{adminLink()}</div>
-                <p>{description}</p>
-                <div className="flex flex-row justify-end">
-                    <div className="card flex-none font-bold px-5 flex flex-col justify-center">submit</div>
-                </div>
+                {renderTopicLinks()}
             </div>
+
         </>)
     } else {
         return (<>

@@ -45,12 +45,12 @@ const ProposeCater = () => {
                 const [hour, minutes] = [value.getUTCHours(), value.getUTCMinutes()];
                 const timeStr = `${hour}:${minutes}`
                 setDueTime(timeStr);
-                newDueString = new String("").concat(dueDate || "0000-00-00", " ", timeStr || "00:00");
-            } else if (id == "date") {
+                newDueString = "".concat(dueDate || "0000-00-00", " ", timeStr || "00:00");
+            } else if (id === "date") {
                 const [year, month, day] = [value.getFullYear(), value.getUTCMonth(), value.getUTCDate()];
                 const dateStr = `${year}-${month + 1}-${day}`;
                 setDueDate(dateStr);
-                newDueString = new String("").concat(dateStr || "0000-00-00", " ", dueTime || "00:00");
+                newDueString = "".concat(dateStr || "0000-00-00", " ", dueTime || "00:00");
             }
 
             const [due, mes] = checkDueInput(newDueString);

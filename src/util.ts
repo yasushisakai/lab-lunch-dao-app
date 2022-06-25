@@ -29,7 +29,7 @@ export const initGroup = async (
     program: Program<LabLunchDao>,
     owner: anchor.web3.Keypair): Promise<anchor.web3.PublicKey> => {
 
-    const [group, _] = await findAddress([stringToBytes("group"), stringToBytes(name)], program);
+    const [group] = await findAddress([stringToBytes("group"), stringToBytes(name)], program);
 
     await program.methods.initGroup(name).accounts({
         group,
@@ -46,7 +46,7 @@ export const batchAddCater = async (
     list: anchor.web3.PublicKey,
     group: anchor.web3.PublicKey,
     program: Program<LabLunchDao>) => {
-    const [cater, _cBump] = await findAddress([stringToBytes("cater"), list.toBuffer(), stringToBytes(caterInfo.name)], program);
+    const [cater] = await findAddress([stringToBytes("cater"), list.toBuffer(), stringToBytes(caterInfo.name)], program);
     const findAddresses = await Promise.all(caterInfo.menu.map(m => findAddress([stringToBytes("menu"), cater.toBuffer(), stringToBytes(m.name)], program)));
     const menu = findAddresses.map(([a, _b]) => a)
     await program.methods.pushCater(caterInfo.name).accounts({
@@ -71,7 +71,7 @@ export const aggregateResult = (options: string[], votes: number[]) => {
 
     let voteNumbers:{[index:number]:string[]} = {};
 
-    options.map((k, i) => {
+    options.forEach((k, i) => {
         const count = votes[i];
         if (!voteNumbers[count]) {
             voteNumbers[count] = [];
@@ -88,7 +88,7 @@ export const vote = async (
     topic: anchor.web3.PublicKey, 
     ballot: boolean[], 
     program: Program<LabLunchDao>) => {
-    let [ballotAddress, _] = await findAddress(
+    let [ballotAddress] = await findAddress(
         [
             stringToBytes("ballot"),
             voter.publicKey.toBuffer(),

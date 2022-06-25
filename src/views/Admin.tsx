@@ -1,7 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import { ChangeEvent, useContext, useEffect, useState } from "react";
 import { CaterAccount } from "../model";
-import { batchAddCater, findAddress, newKeyPair, stringToBytes } from "../util";
+import { batchAddCater, findAddress, stringToBytes } from "../util";
 import { shortenAddress } from "../utilities";
 import { WalletContext } from "../workspace";
 import caterInfo from "../dummy_data/caters.json";
@@ -12,48 +12,47 @@ const Admin = () => {
     const { program, address } = useContext(WalletContext);
     const [group, setGroup] = useState<null | PublicKey>(null);
     const [groupName, setGroupName] = useState("");
-    const [groupMembers, setGroupMembers] = useState<PublicKey[]>([]);
     const [list, setList] = useState<null | PublicKey>(null);
     const [caters, setCaters] = useState<CaterAccount[]>([]);
     const [newMemberAddress, setNewMemberAddress] = useState("");
     const [newQuorum, setNewQuorum] = useState<number>(1);
 
     useEffect(() => {
+        const checkData = async () => {
+            if (program && address) {
+                const [g] = await findAddress([stringToBytes("group"), stringToBytes(config.groupName)], program);
+                const [l] = await findAddress([stringToBytes("cater_list"), g.toBuffer()], program);
+                try {
+                    const groupAccount = await program.account.group.fetch(g);
+                    setGroup(g);
+                    setGroupName(groupAccount.name);
+                    console.log("group members:", groupAccount.members.map(m => m.toBase58()));
+                } catch {
+                    setGroup(null);
+                    setGroupName("");
+                }
+
+                try {
+                    const listAccount = await program.account.caterList.fetch(l);
+                    setList(l);
+                    const loadCaterAccounts = listAccount.caters.map(c => program.account.caterItem.fetch(c));
+                    setCaters(await Promise.all(loadCaterAccounts));
+                } catch {
+                    console.log("couldn't find list");
+                    setList(null);
+                }
+
+            }
+        };
+
         checkData();
     }, [program, address])
 
-    const checkData = async () => {
-        if (program && address) {
-            const [g, _bump] = await findAddress([stringToBytes("group"), stringToBytes(config.groupName)], program);
-            const [l, _lBump] = await findAddress([stringToBytes("cater_list"), g.toBuffer()], program);
-            try {
-                const groupAccount = await program.account.group.fetch(g);
-                setGroup(g);
-                setGroupName(groupAccount.name);
-                console.log("group members:", groupAccount.members.map(m => m.toBase58()));
-                setGroupMembers(groupAccount.members);
-            } catch {
-                setGroup(null);
-                setGroupName("");
-            }
-
-            try {
-                const listAccount = await program.account.caterList.fetch(l);
-                setList(l);
-                const loadCaterAccounts = listAccount.caters.map(c => program.account.caterItem.fetch(c));
-                setCaters(await Promise.all(loadCaterAccounts));
-            } catch {
-                console.log("couldn't find list");
-                setList(null);
-            }
-
-        }
-    };
 
 
     const initGroup = async () => {
         if (program && address) {
-            const [g, _bump] = await findAddress([stringToBytes("group"), stringToBytes(config.groupName)], program);
+            const [g] = await findAddress([stringToBytes("group"), stringToBytes(config.groupName)], program);
             try {
                 await program.methods.initGroup(config.groupName).accounts({
                     group: g,
@@ -66,15 +65,13 @@ const Admin = () => {
 
             const groupAccount = await program.account.group.fetch(g);
             setGroupName(groupAccount.name);
-            console.log("group members:", groupAccount.members.map(m => m.toBase58()));
-            setGroupMembers(groupAccount.members);
             setGroup(g);
         }
     }
 
     const initList = async () => {
         if (program && address && group) {
-            const [l, _bump] = await findAddress([stringToBytes("cater_list"), group.toBuffer()], program);
+            const [l] = await findAddress([stringToBytes("cater_list"), group.toBuffer()], program);
             try {
                 await program.methods.initCaterList()
                     .accounts({

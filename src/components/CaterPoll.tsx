@@ -5,7 +5,7 @@ import { FC, useContext, useEffect, useState } from 'react';
 import { Topic } from '../model';
 import { WalletContext } from '../workspace';
 import { PublicKey } from '@solana/web3.js';
-import { CaterAccount, TopicType } from '../model';
+import { CaterAccount } from '../model';
 import { findAddress, stringToBytes } from '../util';
 import Result from "./Result";
 
@@ -27,61 +27,57 @@ const CaterPoll: FC<ICaterPollProps> = ({ topic }: ICaterPollProps) => {
     const [message, setMessage] = useState("");
 
     useEffect(() => {
+
+        const fetchCaterOptions = async () => {
+            if (program && caterList) {
+                const caterListItems = await program.account.caterList.fetch(caterList);
+                const c = await program.account.caterItem.all([{
+                    memcmp: {
+                        offset: 8,
+                        bytes: caterList.toBase58()
+                    }
+                }]);
+                console.log(c);
+                let lookUp: { [index: string]: CaterAccount } = {};
+                for (let i = 0; i < c.length; i++) {
+                    lookUp[c[i].publicKey.toBase58()] = c[i].account;
+                }
+                // we don't know the order
+                let ordered = caterListItems.caters.map(k => ({
+                    id: k,
+                    cater: lookUp[k.toBase58()]
+                }));
+
+                setCaters(ordered);
+            }
+        };
+
+        const fetchIfVoted = async () => {
+            if (program && address) {
+                const [ballot] = await findAddress([stringToBytes("ballot"), address.toBuffer(), topic.publicKey.toBuffer()], program);
+                try {
+                    const ballotAccount = await program.account.ballot.fetch(ballot!);
+                    setVote(ballotAccount.approvals);
+                    setMessage("already voted");
+                    setButtonDisabled(true);
+                } catch {
+                    let emptyVote = new Array(topic.options.length);
+                    emptyVote.fill(false);
+                    setVote(emptyVote);
+                    if (topic.voteDue.toNumber() * 1000 > (new Date()).valueOf()) {
+                        setButtonDisabled(false);
+                    } else {
+                        setMessage("poll closed");
+                    }
+                }
+            }
+        }
+
         fetchCaterOptions();
         fetchIfVoted();
-    }, []);
 
 
-    const ballotAddress = async () => {
-        if (address && program) {
-            const [ballot, _] = await findAddress([stringToBytes("ballot"), address.toBuffer(), topic.publicKey.toBuffer()], program);
-            return ballot
-        }
-    }
-
-    const fetchCaterOptions = async () => {
-        if (program && caterList) {
-            const caterListItems = await program.account.caterList.fetch(caterList);
-            const c = await program.account.caterItem.all([{
-                memcmp: {
-                    offset: 8,
-                    bytes: caterList.toBase58()
-                }
-            }]);
-            let lookUp:{[index:string]:CaterAccount} = {};
-            for(let i=0;i<c.length;i++) {
-                lookUp[c[i].publicKey.toBase58()] = c[i].account;
-            }
-            // we don't know the order
-            let ordered = caterListItems.caters.map(k=>({
-                id: k, 
-                cater: lookUp[k.toBase58()]
-            }));
-
-            setCaters(ordered);
-        }
-    };
-
-    const fetchIfVoted = async () => {
-        if (program && address) {
-            const ballot = await ballotAddress();
-            try {
-                const ballotAccount = await program.account.ballot.fetch(ballot!);
-                setVote(ballotAccount.approvals);
-                setMessage("already voted");
-                setButtonDisabled(true);
-            } catch {
-                let emptyVote = new Array(topic.options.length);
-                emptyVote.fill(false);
-                setVote(emptyVote);
-                if(topic.voteDue.toNumber()*1000 > (new Date()).valueOf()) {
-                    setButtonDisabled(false);
-                } else {
-                    setMessage("poll closed");
-                }
-            }
-        }
-    }
+    }, [program, caterList, address, topic]);
 
     const toggleFn = (i: number) => {
         let newVote = [...vote];
@@ -94,21 +90,21 @@ const CaterPoll: FC<ICaterPollProps> = ({ topic }: ICaterPollProps) => {
         caters.map((c, i) => <CaterPollItem id={c.id} cater={c.cater} value={vote[i]} toggleFn={() => { toggleFn(i) }} />);
 
     const submitVote = async () => {
-        const ballot = await ballotAddress();
-        if(program && address && group) {
+        if (program && address && group) {
+            const [ballot] = await findAddress([stringToBytes("ballot"), address.toBuffer(), topic.publicKey.toBuffer()], program);
             await program.methods.vote(vote).accounts({
-                ballot: ballot!,
+                ballot,
                 group,
                 topic: topic.publicKey,
                 voter: address
-            }).rpc()            
-        setButtonDisabled(true);
+            }).rpc()
+            setButtonDisabled(true);
         }
     };
 
-    const renderResults =() => {
-        if(topic.finalized) {
-            return(<Result topic={topic.publicKey} names={caters.map(c=>c.cater.name)}/>)
+    const renderResults = () => {
+        if (topic.finalized) {
+            return (<Result topic={topic.publicKey} names={caters.map(c => c.cater.name)} />)
         }
     }
 
@@ -129,7 +125,7 @@ const CaterPoll: FC<ICaterPollProps> = ({ topic }: ICaterPollProps) => {
             <PollFooter due={topic.voteDue.toNumber()} current_votes={topic.voteNum} quora={topic.quorum} />
             <button onClick={submitVote} className="card flex-none font-bold px-5 flex flex-col justify-center disabled:card-disabled" disabled={buttonDisabled}>submit</button>
         </div>
-        <Finalize topic={topic}/>
+        <Finalize topic={topic} />
     </div>)
 };
 

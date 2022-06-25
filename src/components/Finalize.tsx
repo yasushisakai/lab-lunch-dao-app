@@ -15,43 +15,45 @@ const Finalize: FC<FinalizeProps> = ({ topic }) => {
     const [ballots, setBallots] = useState<PublicKey[]>([]);
 
     useEffect(() => {
+
+        const fetchBallots = async () => {
+            if (program) {
+                const ballotAccounts = await program.account.ballot.all([{
+                    memcmp: {
+                        offset: 8,
+                        bytes: topic.publicKey.toBase58()
+                    }
+                }]);
+                setBallots(ballotAccounts.map(ba => ba.publicKey));
+            }
+        };
+
+        const checkFinal = async () => {
+            if (!topic.finalized &&
+                topic.voteDue.toNumber() * 1000 < (new Date()).valueOf() &&
+                topic.voteNum >= topic.quorum) {
+                setDisabled(false);
+                await fetchBallots();
+            }
+        }
         checkFinal();
-    }, []);
+    }, [topic, program]);
 
-    const checkFinal = async () => {
-        if (!topic.finalized && 
-            topic.voteDue.toNumber()*1000 < (new Date()).valueOf() &&
-            topic.voteNum >= topic.quorum) {
-            setDisabled(false);
-            await fetchBallots();
-        }
-    }
 
-    const fetchBallots = async () => {
-        if (program) {
-            const ballotAccounts = await program.account.ballot.all([{
-                memcmp: {
-                    offset: 8,
-                    bytes: topic.publicKey.toBase58()
-                }
-            }]);
-            setBallots(ballotAccounts.map(ba => ba.publicKey));
-        }
-    };
 
     const finalize = async () => {
-        if(program && group && address) {
-            const [result, _rBump] = await findAddress([stringToBytes("result"), topic.publicKey.toBuffer()], program)
+        if (program && group && address) {
+            const [result] = await findAddress([stringToBytes("result"), topic.publicKey.toBuffer()], program)
             setDisabled(true);
             await program.methods.finalizeTopic().accounts({
-            topic: topic.publicKey,
-            result,
-            group,
-            payer: address,
-        })
-            .remainingAccounts(ballots.map(
-                b => ({ pubkey: b, isWritable: false, isSigner: false })))
-            .rpc();
+                topic: topic.publicKey,
+                result,
+                group,
+                payer: address,
+            })
+                .remainingAccounts(ballots.map(
+                    b => ({ pubkey: b, isWritable: false, isSigner: false })))
+                .rpc();
         }
     };
 

@@ -1,11 +1,11 @@
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import { ConnectionProvider, useWallet, WalletProvider, useAnchorWallet } from '@solana/wallet-adapter-react';
+import { ConnectionProvider, useWallet, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import {
     PhantomWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl, Connection, PublicKey } from '@solana/web3.js';
-import React, { FC, ReactNode, useEffect, useState, useMemo } from 'react';
+import { Connection, PublicKey } from '@solana/web3.js';
+import { FC, ReactNode, useEffect, useState, useMemo } from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navigation from './components/Navigation';
 
@@ -69,34 +69,34 @@ const Content: FC = () => {
     const { publicKey, signTransaction, signAllTransactions } = useWallet();
 
     useEffect(() => {
-        if(publicKey){
-        // const wallet = useAnchorWallet();
-        const commitment = 'processed';
-        const connection = new Connection(config.endpoint, commitment);
+        if (publicKey) {
+            // const wallet = useAnchorWallet();
+            const commitment = 'processed';
+            const connection = new Connection(config.endpoint, commitment);
 
-        const wallet = {
-            publicKey,
-            signTransaction,
-            signAllTransactions
-        };
+            const wallet = {
+                publicKey,
+                signTransaction,
+                signAllTransactions
+            };
 
-        const provider = new AnchorProvider(
-            connection,
-            wallet as Wallet,
-            { preflightCommitment: 'processed', commitment }
-        );
+            const provider = new AnchorProvider(
+                connection,
+                wallet as Wallet,
+                { preflightCommitment: 'processed', commitment }
+            );
 
-        const programId = new PublicKey(config.programId);
-        const program = new Program(IDL, programId, provider) as Program<LabLunchDao>
+            const programId = new PublicKey(config.programId);
+            const program = new Program(IDL, programId, provider) as Program<LabLunchDao>
 
-        findAddresses(program, publicKey)
+            findAddresses(program, publicKey)
         }
-    }, [publicKey]);
+    }, [publicKey, signTransaction, signAllTransactions]);
 
-    const findAddresses = async(program: Program<LabLunchDao>, publicKey: PublicKey)=>{
-        const [group, _gBump] = await findAddress([stringToBytes("group"), stringToBytes(config.groupName)], program);
-        const [list, _lBump] = await findAddress([stringToBytes("cater_list"), group.toBuffer()], program);
-        setContext({address: publicKey, program, group, list} as WalletType)
+    const findAddresses = async (program: Program<LabLunchDao>, publicKey: PublicKey) => {
+        const [group] = await findAddress([stringToBytes("group"), stringToBytes(config.groupName)], program);
+        const [list] = await findAddress([stringToBytes("cater_list"), group.toBuffer()], program);
+        setContext({ address: publicKey, program, group, list } as WalletType)
     }
 
     return (

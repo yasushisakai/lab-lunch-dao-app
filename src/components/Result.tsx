@@ -1,8 +1,5 @@
-import NamespaceFactory from '@project-serum/anchor/dist/cjs/program/namespace';
 import { PublicKey } from '@solana/web3.js';
-import { setDefaultResultOrder } from 'dns';
 import { FC, useContext, useEffect, useState } from 'react';
-import { TopicType } from '../model';
 import { aggregateResult, findAddress, stringToBytes } from '../util';
 import { WalletContext } from '../workspace';
 
@@ -18,16 +15,16 @@ const Result: FC<ResultProps> = ({ topic, names }) => {
     const [result, setResult] = useState<string[][]>([]);
 
     useEffect(() => {
-        fetchResultAddress();
-    }, [program, result]);
-
-    const fetchResultAddress = async () => {
-        if (program) {
-            const [k, _b] = await findAddress([stringToBytes("result"), topic.toBuffer()], program)
-            const { votes } = await program.account.finalizedTopic.fetch(k);
-            setResult(aggregateResult(names, votes as number[]));
+        const fetchResultAddress = async () => {
+            if (program) {
+                const [k] = await findAddress([stringToBytes("result"), topic.toBuffer()], program)
+                const { votes } = await program.account.finalizedTopic.fetch(k);
+                setResult(aggregateResult(names, votes as number[]));
+            }
         }
-    }
+        fetchResultAddress();
+    }, [program, result, names, topic]);
+
 
     if (result.length > 0) {
         return (

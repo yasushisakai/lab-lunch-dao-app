@@ -3,7 +3,6 @@ import PollFooter from './PollFooter';
 import { FC, useContext, useEffect, useState } from 'react';
 import { Topic, MenuItem } from '../model';
 import { WalletContext } from '../workspace';
-import { PublicKey } from '@solana/web3.js';
 import { findAddress, stringToBytes } from '../util';
 import Finalize from './Finalize';
 import Result from './Result';
@@ -20,41 +19,43 @@ const LunchPoll: FC<ILunchPollProps> = ({ topic }) => {
     const [message, setMessage] = useState("");
 
     useEffect(() => {
-        fetchTopicOptions();
-        fetchIfVoted();
-    }, [])
-
-    const fetchTopicOptions = async () => {
-        if (program) {
-            const ms = topic.options.map(o => program.account.menuItem.fetch(o));
-            // Promise.all preserves the order of the original array
-            const its = await Promise.all(ms);
-            setVote(its.map(_v => false));
-            setItems(its);
+        const fetchTopicOptions = async () => {
+            if (program) {
+                const ms = topic.options.map(o => program.account.menuItem.fetch(o));
+                // Promise.all preserves the order of the original array
+                const its: MenuItem[] = await Promise.all(ms);
+                setVote(its.map(_v => false));
+                setItems(its);
+            }
         }
-    }
 
-    const fetchIfVoted = async () => {
-        if (program && address) {
-            const ballot = await ballotAddress();
-            try {
-                const ballotAccount = await program.account.ballot.fetch(ballot!);
-                console.log(ballotAccount.approvals);
-                setVote(ballotAccount.approvals);
-                setButtonDisabled(true);
-                setMessage("aleady voted");
-            } catch {
-                let emptyVote = new Array(topic.options.length);
-                emptyVote.fill(false);
-                setVote(emptyVote);
-                if (topic.voteDue.toNumber() * 1000 > (new Date()).valueOf()) {
-                    setButtonDisabled(false);
-                } else {
-                    setMessage("poll closed");
+        const fetchIfVoted = async () => {
+            if (program && address) {
+                try {
+                    const [ballot] = await findAddress([stringToBytes("ballot"), address.toBuffer(), topic.publicKey.toBuffer()], program);
+                    const ballotAccount = await program.account.ballot.fetch(ballot);
+                    console.log(ballotAccount.approvals);
+                    setVote(ballotAccount.approvals);
+                    setButtonDisabled(true);
+                    setMessage("aleady voted");
+                } catch {
+                    let emptyVote = new Array(topic.options.length);
+                    emptyVote.fill(false);
+                    setVote(emptyVote);
+                    if (topic.voteDue.toNumber() * 1000 > (new Date()).valueOf()) {
+                        setButtonDisabled(false);
+                    } else {
+                        setMessage("poll closed");
+                    }
                 }
             }
         }
-    }
+        fetchTopicOptions();
+        fetchIfVoted();
+        //
+    }, [address, program, topic])
+
+
 
     const handleItemClick = (index: number) => {
         // deepcopy
@@ -63,25 +64,18 @@ const LunchPoll: FC<ILunchPollProps> = ({ topic }) => {
         setVote(newVote);
     }
 
-    const ballotAddress = async () => {
-        if (address && program) {
-            const [ballot, _] = await findAddress([stringToBytes("ballot"), address.toBuffer(), topic.publicKey.toBuffer()], program);
-            return ballot
-        }
-    }
-
     const { name, description } = topic;
     // const quora = 15;
 
-    const list = () => items.map((m, i) => (<LunchPollItem menu={m} value={vote[i]} toggleFn={() => { handleItemClick(i) }} />));
+    const list = () => items.map((m, i) => (<LunchPollItem key={m.name} menu={m} value={vote[i]} toggleFn={() => { handleItemClick(i) }} />));
     // menu_list.map((menu) => <LunchPollItem element={menu} />);
 
     const submitVote = async () => {
         console.log(vote);
-        const ballot = await ballotAddress();
         if (program && address && group) {
+            const [ballot] = await findAddress([stringToBytes("ballot"), address.toBuffer(), topic.publicKey.toBuffer()], program);
             await program.methods.vote(vote).accounts({
-                ballot: ballot!,
+                ballot,
                 group,
                 topic: topic.publicKey,
                 voter: address
