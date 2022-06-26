@@ -18,6 +18,7 @@ import Topic from './views/Topic';
 import ProposeLunch from './views/ProposeLunch';
 import ProposeCater from './views/ProposeCater';
 import Cater from './views/Cater';
+import Project from './views/Project';
 import { WalletType, WalletContext, emptyContext } from './workspace';
 import { AnchorProvider, Program, Wallet } from '@project-serum/anchor';
 import config from './config';
@@ -108,7 +109,8 @@ const Content: FC = () => {
                     <div id="content">
                         <Routes>
                             <Route element={<Home />} path="/" />
-                            <Route element={<Admin />} path="/admin" />
+                            <Route element={<Project />} path="project" />
+                            <Route element={<Admin />} path="admin" />
                             <Route element={<List />} path="list" />
                             <Route element={<Propose />} path="propose" />
                             <Route element={<ProposeLunch />} path="propose/lunch" />

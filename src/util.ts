@@ -50,7 +50,7 @@ export const batchAddCater = async (
     const [cater] = await findAddress([stringToBytes("cater"), list.toBuffer(), stringToBytes(caterInfo.name)], program);
     const findAddresses = await Promise.all(caterInfo.menu.map(m => findAddress([stringToBytes("menu"), cater.toBuffer(), stringToBytes(m.name)], program)));
     const menu = findAddresses.map(([a, _b]) => a)
-    await program.methods.pushCater(caterInfo.name).accounts({
+    await program.methods.pushCater(caterInfo.name, caterInfo.url).accounts({
         caterList: list,
         cater,
         group,

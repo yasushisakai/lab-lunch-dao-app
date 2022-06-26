@@ -6,6 +6,7 @@ import { shortenAddress } from "../util";
 import { WalletContext } from "../workspace";
 import caterInfo from "../data/caters.json";
 import config from "../config";
+import Wrapper from "../components/Wrapper";
 
 const Admin = () => {
 
@@ -159,7 +160,7 @@ const Admin = () => {
         setNewQuorum(parseInt(e.target.value));
     }
 
-    return (<>
+    return (<Wrapper>
         <div className="flex flex-col p-2 space-y-3">
             <h1>admin</h1>
             <div className="flex flex-row justify-between">
@@ -190,6 +191,6 @@ const Admin = () => {
                 </div>
             </div>
         </div>
-    </>)
+    </Wrapper>)
 }
 export default Admin;

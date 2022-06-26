@@ -2,6 +2,7 @@ import { useContext, useState, ChangeEvent, useEffect } from "react";
 import { WalletContext } from "../workspace";
 import { BN } from "bn.js";
 import { newKeyPair } from "../util";
+import Wrapper from "../components/Wrapper";
 
 export const checkDueInput = (str: string): [Date|null, string] => {
     const now = new Date();
@@ -84,7 +85,7 @@ const ProposeCater = () => {
     }
 
 
-    return (<>
+    return (<Wrapper>
         <h1>Change Cater List</h1>
         <p>This will create a poll to change the short list of caters. Every Lunch will be picked among this approved list.</p>
         <div className="flex flex-col space-y-4 mt-5">
@@ -104,7 +105,7 @@ const ProposeCater = () => {
                 <button onClick={submit} disabled={buttonDisabled} className="card flex-none font-bold px-5 disabled:card-disabled">submit</button>
             </div>
         </div>
-    </>
+    </Wrapper>
     )
 }
 

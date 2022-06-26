@@ -9,7 +9,7 @@
     }
 
     h1 {
-        @apply text-4xl py-6 font-bold;
+        @apply text-6xl py-6 font-bold;
     }
 
     h2 {
@@ -19,6 +19,16 @@
     nav {
         background-color: theme(colors.navigation-bg);
         @apply p-2;
+    }
+
+    #content a{
+        @apply bg-light-text text-base;
+        padding: 0 0.30em 0 0.30em;
+        border-radius: 1em;
+    }
+
+    #content a:hover{
+        @apply text-light-text bg-base;
     }
 
     input, select {
@@ -33,7 +43,6 @@
 
 @layer components {
     #content {
-        @apply px-2;
         background-color: theme(colors.base);
     }
 
@@ -49,5 +58,9 @@
 
     .navi-item {
         @apply flex flex-col text-xs;
+    }
+    
+    #title {
+        @apply text-6xl mt-6;
     }
 }

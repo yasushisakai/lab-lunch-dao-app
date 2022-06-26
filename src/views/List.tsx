@@ -2,16 +2,24 @@ import TopicListItem from '../components/TopicListItem';
 import { useContext, useEffect, useState } from 'react';
 import { WalletContext } from '../workspace';
 import { Topic } from "../model";
+import Wrapper from '../components/Wrapper';
 
 const List = () => {
 
     const { address, group, program } = useContext(WalletContext);
     const [topics, setTopics] = useState<Topic[]>([])
+    const [seqNo, setSeqNo] = useState(0)
 
     useEffect(() => {
         if (!program || !address || !group) return;
         const fetchTopics = async () => {
+
             if (program && group) {
+
+                const groupAccount = await program.account.group.fetch(group);
+                const sn = groupAccount.seqNo;
+                setSeqNo(sn.toNumber());
+
                 const topicAccounts = await program.account.topic.all([
                     {
                         memcmp: {
@@ -22,30 +30,34 @@ const List = () => {
                 ]);
 
                 topicAccounts.sort((a, b) => {
-                    if (a.account.finalized && !b.account.finalized) {
-                        return 1;
-                    } else if (!a.account.finalized && b.account.finalized) {
-                        return -1;
+                    if (a.account.seqNo === sn && b.account.seqNo !== sn) {
+                        return -1
+                    } else if (a.account.seqNo !== sn && b.account.seqNo === sn) {
+                        return 1
                     } else {
-                        const aElapsed = (a.account.voteDue.toNumber() * 1000) - (new Date()).valueOf()
-                        const bElapsed = (b.account.voteDue.toNumber() * 1000) - (new Date()).valueOf()
-
-                        if (aElapsed > 0 && bElapsed < 0) {
-                            return -1;
-                        } else if (aElapsed < 0 && bElapsed > 0) {
+                        if (a.account.finalized && !b.account.finalized) {
                             return 1;
+                        } else if (!a.account.finalized && b.account.finalized) {
+                            return -1;
                         } else {
-                            if (aElapsed > bElapsed) {
+                            const aElapsed = (a.account.voteDue.toNumber() * 1000) - (new Date()).valueOf()
+                            const bElapsed = (b.account.voteDue.toNumber() * 1000) - (new Date()).valueOf()
+
+                            if (aElapsed > 0 && bElapsed < 0) {
+                                return -1;
+                            } else if (aElapsed < 0 && bElapsed > 0) {
                                 return 1;
                             } else {
-                                return -1;
+                                if (aElapsed > bElapsed) {
+                                    return 1;
+                                } else {
+                                    return -1;
+                                }
                             }
-                        }
 
+                        }
                     }
                 })
-
-
 
                 let tpcs: Topic[] = topicAccounts.map(t => {
                     const { publicKey, account } = t;
@@ -65,10 +77,10 @@ const List = () => {
 
     const list = () =>
         topics.map(topic => {
-            return (<TopicListItem key={topic.publicKey.toBase58()} topic={topic}/>)
+            return (<TopicListItem key={topic.publicKey.toBase58()} topic={topic} groupSeqNo={seqNo} />)
         });
 
-    return (<>
+    return (<Wrapper>
         <h1>Topic List</h1>
         <div className="flex flex-row space-x-2 px-1 py-2 text-sm">
             <p>status</p>
@@ -78,7 +90,7 @@ const List = () => {
         <div className="flex flex-col space-y-4">
             {list()}
         </div>
-    </>)
+    </Wrapper>)
 };
 
 export default List;

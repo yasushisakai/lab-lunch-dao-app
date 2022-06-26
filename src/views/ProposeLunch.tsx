@@ -6,6 +6,7 @@ import { LabLunchDao } from "../types/lab_lunch_dao";
 import { checkDueInput } from "./ProposeCater";
 import { BN } from "bn.js";
 import { newKeyPair } from "../util";
+import Wrapper from "../components/Wrapper";
 
 
 type Option = {
@@ -157,7 +158,7 @@ const ProposeLunch = () => {
         }
     }
 
-    return (<>
+    return (<Wrapper>
         <h1>Plan a Lunch</h1>
 
         <div className="flex flex-col space-y-5 mt-5">
@@ -189,7 +190,7 @@ const ProposeLunch = () => {
             </div>
         </div>
 
-    </>)
+    </Wrapper>)
 };
 
 export default ProposeLunch;

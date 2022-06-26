@@ -3,11 +3,13 @@ import BN from "bn.js"
 
 export type CaterAccount = {
     name: string,
+    url: string,
     menus: any[]
 }
 
 export interface CaterInfo {
     name: string,
+    url: string,
     menu: MenuItem[]
 }
 

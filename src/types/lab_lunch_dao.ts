@@ -131,6 +131,10 @@ export type LabLunchDao = {
         {
           "name": "name",
           "type": "string"
+        },
+        {
+          "name": "url",
+          "type": "string"
         }
       ]
     },
@@ -416,6 +420,10 @@ export type LabLunchDao = {
           },
           {
             "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "url",
             "type": "string"
           },
           {
@@ -750,6 +758,10 @@ export const IDL: LabLunchDao = {
         {
           "name": "name",
           "type": "string"
+        },
+        {
+          "name": "url",
+          "type": "string"
         }
       ]
     },
@@ -1035,6 +1047,10 @@ export const IDL: LabLunchDao = {
           },
           {
             "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "url",
             "type": "string"
           },
           {

@@ -4,6 +4,7 @@ import { WalletContext } from "../workspace";
 import { Link } from "react-router-dom";
 import config from "../config";
 import { PublicKey } from "@solana/web3.js";
+import Wrapper from "../components/Wrapper";
 
 const Status = () => {
 
@@ -40,18 +41,20 @@ const Status = () => {
     }
 
     if (address !== null) {
-        return (<>
+        return (<Wrapper>
             <h1>'{shortenAddress(address)}'</h1>
             <div className="flex flex-col space-y-5">
                 <div>{adminLink()}</div>
                 {renderTopicLinks()}
             </div>
 
-        </>)
+        </Wrapper>)
     } else {
-        return (<>
-            You need to connect your  wallet to participate! If you are accessing from a computer install the Phantom browser walllet extension. If you are from your smart phone, install Phantom wallet app.
-        </>)
+        return (<Wrapper>
+            <div className="flex flex-row justify-center text-justify">
+                You need to connect your  wallet to participate! If you are accessing from a computer install the Phantom browser walllet extension. If you are from your smart phone, install Phantom wallet app.
+            </div>
+        </Wrapper>)
     }
 };
 

@@ -11,7 +11,8 @@ module.exports = {
       'navigation-bg': '#2D9CDB',
       'light-text': '#F2F2F2',
       'negative': '#EB5757',
-      'fixed': '#828282'
+      'fixed': '#828282',
+      'warn': '#F2994A'
     },
     extend: {},
   },

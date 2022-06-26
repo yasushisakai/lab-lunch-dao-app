@@ -32,7 +32,8 @@ const Navigation = () => {
     }
 
     return (
-        <nav className="flex flex-row justify-between">
+        <div className="flex flex-row justify-center bg-navigation-bg">
+        <nav className="flex-1 flex flex-row justify-between max-w-lg">
             <Link to="/">
                 <div className="navi-item">
                     <FontAwesomeIcon icon={faHouse} size="2x" />
@@ -55,6 +56,7 @@ const Navigation = () => {
                 {walletIcon()}
             </Link>
         </nav>
+        </div>
     )
 }
 

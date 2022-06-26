@@ -6,6 +6,7 @@ import { WalletContext } from '../workspace';
 import { findAddress, stringToBytes } from '../util';
 import Finalize from './Finalize';
 import Result from './Result';
+import Wrapper from './Wrapper';
 
 type ILunchPollProps = {
     topic: Topic
@@ -91,9 +92,11 @@ const LunchPoll: FC<ILunchPollProps> = ({ topic }) => {
     }
 
     //TODO: what to do with overflowing?
-    return (<div className="h-full">
-        <h1>{name}</h1>
-        <div>{description}</div>
+    return (
+        <Wrapper>
+    <div className="h-full">
+        <p className="mt-3">{name}: </p>
+        <h1>{description}</h1>
         {renderResults()}
         <div className="flex flex-row space-x-2 px-1 py-2 text-sm">
             <p className="flex-1">cuisine</p>
@@ -108,7 +111,8 @@ const LunchPoll: FC<ILunchPollProps> = ({ topic }) => {
             <button disabled={buttonDisabled} onClick={submitVote} className="card flex-none font-bold px-5 flex flex-col justify-center disabled:card-disabled">submit</button>
         </div>
         <Finalize topic={topic} />
-    </div>)
+    </div>
+    </Wrapper>)
 };
 
 export default LunchPoll;

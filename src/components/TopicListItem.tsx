@@ -1,6 +1,6 @@
 import { FC, useContext, useEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleCheck, faCircleXmark, faCircle } from '@fortawesome/free-solid-svg-icons';
+import { faCheckToSlot, faDove, faSpinner, faCircleXmark, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { Topic } from '../model';
 import { WalletContext } from "../workspace";
@@ -9,11 +9,12 @@ import { findAddress, stringToBytes } from "../util";
 
 type ITopicListItemProps = {
     topic: Topic,
+    groupSeqNo: number,
 }
 
-const TopicListItem: FC<ITopicListItemProps> = ({ topic }) => {
+const TopicListItem: FC<ITopicListItemProps> = ({ topic, groupSeqNo }) => {
 
-    const { publicKey, voteDue, name, description, finalized } = topic;
+    const { publicKey, voteDue, name, finalized } = topic;
     const [voted, setVoted] = useState(true);
     const { address, program } = useContext(WalletContext);
 
@@ -36,10 +37,15 @@ const TopicListItem: FC<ITopicListItemProps> = ({ topic }) => {
     const due = voteDue.toNumber() * 1000 < (new Date()).valueOf();
 
     const status = () => {
-        if (finalized) {
+        if (topic.seqNo.toNumber() !== groupSeqNo) {
             return (<div className="flex flex-col justify-between space-y-1 text-fixed">
-                <FontAwesomeIcon icon={faCircleXmark} size="2x" />
-                <div className="text-xs text-center">fixed</div>
+                <FontAwesomeIcon icon={faTrashCan} size="2x" />
+                <div className="text-xs text-center">stale</div>
+            </div>);
+        } else if (finalized) {
+            return (<div className="flex flex-col justify-between space-y-1 text-fixed">
+                <FontAwesomeIcon icon={faDove} size="2x" />
+                <div className="text-xs text-center">done</div>
             </div>);
         } else if (due) {
             return (<div className="flex flex-col justify-center space-y-1 text-negative">
@@ -48,12 +54,12 @@ const TopicListItem: FC<ITopicListItemProps> = ({ topic }) => {
             </div>);
         } else if (voted) {
             return (<div className="flex flex-col justify-center space-y-1">
-                <FontAwesomeIcon icon={faCircleCheck} size="2x" />
+                <FontAwesomeIcon icon={faCheckToSlot} size="2x" />
                 <span className="text-xs text-center">voted</span>
             </div>);
         } else {
-            return (<div className="flex flex-col justify-center space-y-1">
-                <FontAwesomeIcon icon={faCircle} size="2x" />
+            return (<div className="flex flex-col justify-center space-y-1 text-warn">
+                <FontAwesomeIcon icon={faSpinner} size="2x" spin />
                 <span className="text-xs text-center">open</span>
             </div>);
         }
@@ -69,8 +75,7 @@ const TopicListItem: FC<ITopicListItemProps> = ({ topic }) => {
             <div className="card">
                 <div className="flex flex-row space-x-3">
                     <div className="flex flex-col justify-center">{status()}</div>
-                    <div className="flex-1 flex flex-col">
-                        <p className="text-sm">{description}</p>
+                    <div className="flex-1 flex flex-col justify-center text-lg">
                         <p className="font-bold">{name}</p>
                     </div>
                     <div className="flex flex-col text-sm justify-center">

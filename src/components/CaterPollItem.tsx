@@ -38,13 +38,13 @@ const CaterPollItem: FC<ICaterPollItemProps> = ({ id, cater, value, toggleFn }) 
     };
 
     return (
-        <div className="card flex flex-row">
-            <div className="flex-1 flex flex-col justify-center">
+        <div className="flex flex-row space-x-2">
+            <div className="card flex-1 flex flex-col justify-center text-center">
                 <Link to={endpoint}>
                     <div className="font-bold">{name}</div>
                 </Link>
             </div>
-            <div onClick={toggle} className="flex flex-col justify-center">
+            <div onClick={toggle} className="card flex flex-col justify-center">
                 {renderIcon()}
             </div>
         </div>)

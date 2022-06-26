@@ -8,6 +8,7 @@ import { PublicKey } from '@solana/web3.js';
 import { CaterAccount } from '../model';
 import { findAddress, stringToBytes } from '../util';
 import Result from "./Result";
+import Wrapper from './Wrapper';
 
 type ICaterPollProps = {
     topic: Topic
@@ -109,12 +110,12 @@ const CaterPoll: FC<ICaterPollProps> = ({ topic }: ICaterPollProps) => {
     }
 
     //TODO: what to do with overflowing?
-    return (<div className="h-full">
-        <h1>{topic.name}</h1>
-        <div>{topic.description}</div>
+    return (<Wrapper><div className="h-full">
+        <p className="mt-3">{topic.name}:</p>
+        <h1>{topic.description}</h1>
         {renderResults()}
-        <div className="flex flex-row space-x-2 px-1 py-2 text-sm">
-            <p className="flex-1">cuisine</p>
+        <div className="flex flex-row space-x-2 px-1 py-2 text-xs">
+            <p className="flex-1">cuisine (click to see menu)</p>
             <p> multiple choice</p>
         </div>
         <div className="flex flex-col space-y-8 mb-16 overflow-auto">
@@ -126,7 +127,7 @@ const CaterPoll: FC<ICaterPollProps> = ({ topic }: ICaterPollProps) => {
             <button onClick={submitVote} className="card flex-none font-bold px-5 flex flex-col justify-center disabled:card-disabled" disabled={buttonDisabled}>submit</button>
         </div>
         <Finalize topic={topic} />
-    </div>)
+    </div></Wrapper>)
 };
 
 export default CaterPoll;

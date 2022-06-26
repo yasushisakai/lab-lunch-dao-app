@@ -27,7 +27,7 @@ const Topic = () => {
     }, [program, topicId]);
 
     if (topic) {
-        if (topic.name === "Cater Poll") {
+        if (topic.name === "Choose Caters") {
             return <CaterPoll topic={topic} />
         } else {
             return <LunchPoll topic={topic} />
